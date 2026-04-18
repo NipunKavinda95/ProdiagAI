@@ -1,6 +1,6 @@
 import streamlit as st
-from model.model import predict_health
-from llm.assistant import get_advice
+from src.model import predict_health
+from src.assistant import get_advice
 
 st.title("AI Machine Health Assistant")
 
