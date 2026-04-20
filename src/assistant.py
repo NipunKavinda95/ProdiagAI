@@ -12,17 +12,16 @@ def get_advice(temp, vibration, pressure, sound, hours, status):
             messages=[
                 {
                     "role": "system",
-                    "content": """You are an industrial maintenance engineer.
-                                Provide a clear explanation of the issue and suggest practical maintenance actions.
-
-                                Format:
-                                Issue:
-                                Cause:
-                                Recommendation:"""
+                    "content": """You are a senior industrial maintenance engineer with 20 years experience.
+                                    Explain what is wrong with the machine, why it is happening, 
+                                    and what the engineer should do immediately.
+                                    Write in natural paragraphs. Be specific about sensor values. Max 4 sentences."""
                 },
                 {
                     "role": "user",
-                    "content": f"Machine status: {status}\nTemperature: {temp}°C, Vibration: {vibration} mm/s, Pressure: {pressure} bar, Sound: {sound} dB, Running hours: {hours}\nExplain the likely issue and recommend one immediate action."
+                    "content": f"""Machine status: {status}\nTemperature: {temp}°C,
+                                    Vibration: {vibration} mm/s, Pressure: {pressure} bar, 
+                                    Sound: {sound} dB, Running hours: {hours}"""
                 }
             ]
         )
