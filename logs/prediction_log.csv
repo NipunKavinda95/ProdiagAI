@@ -1,0 +1,2 @@
+timestamp,machine_type,machine_id,temperature,vibration,hours,pressure,sound,status,confidence
+2026-04-21 15:25:08,Motor,M001,85.0,4.8,1550.0,6.8,87.0,Warning,98.63

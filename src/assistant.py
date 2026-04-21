@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def get_advice(temp, vibration, pressure, sound, hours, status):
+def get_advice(temp, vibration, pressure, sound, hours, status, machine_type, machine_id):
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -21,7 +21,8 @@ def get_advice(temp, vibration, pressure, sound, hours, status):
                     "role": "user",
                     "content": f"""Machine status: {status}\nTemperature: {temp}°C,
                                     Vibration: {vibration} mm/s, Pressure: {pressure} bar, 
-                                    Sound: {sound} dB, Running hours: {hours}"""
+                                    Sound: {sound} dB, Running hours: {hours}
+                                    Machine type: {machine_type}, Machine ID: {machine_id}"""
                 }
             ]
         )
