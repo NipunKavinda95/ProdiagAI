@@ -6,5 +6,4 @@ __pycache__/
 data/*.csv
 !data/data.csv
 logs/
-.ipynb_checkpoints/
-*.ipynb_checkpoints
+notebooks/.ipynb_checkpoints/
