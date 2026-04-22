@@ -2,4 +2,9 @@ venv/
 .env
 __pycache__/
 *.pyc
+*.pyo
 data/*.csv
+!data/data.csv
+logs/
+.ipynb_checkpoints/
+*.ipynb_checkpoints

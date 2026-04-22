@@ -27,14 +27,18 @@ st.set_page_config(
 )
 
 # Header 
-col_logo, col_title = st.columns([1, 4])
+import streamlit as st
+
+col_logo, col_title = st.columns([2, 4])
 
 with col_logo:
-    st.image("assets/prodiagai_logo.png", width=220)
+    st.image("assets/prodiagai_logo.png", width=350)
 
 with col_title:
     st.markdown("### Predict. Protect. Perform.")
     st.caption("AI-powered industrial machine health monitoring assistant")
+
+
 
 st.divider()
 
