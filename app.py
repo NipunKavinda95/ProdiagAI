@@ -30,14 +30,14 @@ st.set_page_config(
 )
 
 # Header with logo and title
-col_logo, col_title = st.columns([2, 4])
+col1, col2, col3 = st.columns([1,2,1])
 
-with col_logo:
+with col2:
     st.image("assets/prodiagai_logo.png", width=350)
 
-with col_title:
-    st.markdown("### Predict. Protect. Perform.")
-    st.caption("AI-powered industrial machine health monitoring assistant")
+st.markdown("<h3 style='text-align:center;'>Predict. Protect. Perform.</h3>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;'>AI-powered industrial machine health monitoring assistant</p>", unsafe_allow_html=True)
+
 
 
 
@@ -93,9 +93,9 @@ st.sidebar.divider()
 col_check, col_reset = st.sidebar.columns(2)
 
 with col_check:
-    check = st.button("Analyse", use_container_width=True, type="primary")
+    check = st.button("Analyse", width='stretch', type="primary")
 with col_reset:
-    reset = st.button("Reset", use_container_width=True)
+    reset = st.button("Reset", width='stretch')
 
 # Prediction logging function
 def log_prediction(machine_type, machine_id, temp, vib,
@@ -259,16 +259,37 @@ with tab1:
         4. Get instant status + AI advice
         """)
 
-# Tab 2 — Prediction History
+# Tab 2 prediction history and log
 with tab2:
     st.subheader("Prediction History")
 
-    if "history" not in st.session_state or len(st.session_state.history) == 0:
+    # Always try to load from CSV if session is empty
+    if "history" not in st.session_state:
+        st.session_state.history = []
+
+    if len(st.session_state.history) == 0:
+        log_path = "logs/prediction_log.csv"
+        if os.path.isfile(log_path):
+            try:
+                saved = pd.read_csv(log_path)
+                saved = saved.rename(columns={"temperature": "temp"})
+                keep_cols = [
+                    "timestamp", "machine_type", "machine_id",
+                    "temp", "vibration", "pressure",
+                    "sound", "hours", "status", "confidence"
+                ]
+                existing_cols = [c for c in keep_cols if c in saved.columns]
+                saved = saved[existing_cols]
+                st.session_state.history = saved.to_dict("records")
+            except Exception as e:
+                st.warning(f"Could not load history: {e}")
+
+    # NOW show table — works whether loaded from CSV or session
+    if len(st.session_state.history) == 0:
         st.info("No predictions yet — run an analysis first.")
     else:
         history_df = pd.DataFrame(st.session_state.history)
 
-        # Filters
         st.markdown("**Filters**")
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -287,7 +308,6 @@ with tab2:
                 ["All", "Normal", "Warning", "Fault"]
             )
 
-        # Apply filters
         filtered = history_df.copy()
         if filter_type   != "All": filtered = filtered[filtered["machine_type"] == filter_type]
         if filter_id     != "All": filtered = filtered[filtered["machine_id"]   == filter_id]
@@ -295,7 +315,6 @@ with tab2:
 
         st.divider()
 
-        # Summary metrics
         col_n, col_w, col_f, col_t = st.columns(4)
         col_n.metric("Normal",  len(filtered[filtered["status"] == "Normal"]))
         col_w.metric("Warning", len(filtered[filtered["status"] == "Warning"]))
@@ -304,7 +323,6 @@ with tab2:
 
         st.divider()
 
-        # History table — newest first
         display_df = filtered[[
             "timestamp", "machine_type", "machine_id",
             "temp", "vibration", "pressure",
@@ -322,9 +340,8 @@ with tab2:
             "confidence":   "Confidence %"
         }).iloc[::-1].reset_index(drop=True)
 
-        st.dataframe(display_df, use_container_width=True, hide_index=True)
+        st.dataframe(display_df, width='stretch', hide_index=True)
 
-        # Download button
         csv_data = display_df.to_csv(index=False).encode("utf-8")
         st.download_button(
             label="⬇ Download History as CSV",
