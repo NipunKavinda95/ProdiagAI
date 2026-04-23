@@ -11,6 +11,7 @@ import csv
 from datetime import datetime
 from src.model import scaler, le_type, le_id
 import os
+import matplotlib as mpl
 
 @st.cache_resource
 def load_shap_explainer():
@@ -28,6 +29,59 @@ st.set_page_config(
     page_icon="assets/favicon.ico",
     layout="wide"
 )
+
+is_dark = st.get_option("theme.base") != "light"
+
+bg_color = "transparent" if is_dark else "#1a1a2e"
+
+# Custom CSS for dark mode and image styling
+st.markdown("""
+<style>
+    [data-testid="stImage"] img {
+        background-color: {bg_color};
+        padding: 6px 10px;
+        border-radius: 10px;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Custom CSS for tabs
+st.markdown("""
+<style>
+
+/* Tab container spacing */
+[data-testid="stTabs"] {
+    margin-top: 10px;
+}
+
+/* Individual tab buttons */
+[data-testid="stTabs"] button {
+    border: 2px solid ;
+    border-radius: 12px;
+    padding: 8px 18px;
+    margin-right: 8px;
+    background-color: transparent;
+    color: inherit;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+/* Hover effect */
+[data-testid="stTabs"] button:hover {
+    background-color: #F44336;
+    color: white;
+}
+
+/* Active tab */
+[data-testid="stTabs"] button[aria-selected="true"] {
+    background-color: #F44336;
+    color: white;
+    border-color: #F44336;
+}
+
+</style>
+        """, unsafe_allow_html=True)
+
 
 # Header with logo and title
 col1, col2, col3 = st.columns([1,2,1])
@@ -59,7 +113,7 @@ def sensor_gauge(label, value, low, high, unit):
     )
 
 # Sidebar Config
-st.sidebar.image("assets/prodiagai_icon.png", width=60)
+st.sidebar.image("assets/prodiagai_icon.png", width=55)
 st.sidebar.header("Machine Inputs")
 
 machine_type = st.sidebar.selectbox(
@@ -158,10 +212,11 @@ with tab1:
             )
         st.info(advice)
 
+
         # SHAP Chart
         st.divider()
-        st.subheader("Why this prediction?")
-        st.caption("Feature contribution to the prediction — how much each sensor influenced the result")
+        st.subheader("🔍 Why this prediction?")
+        st.caption("SHAP values show how each sensor influenced the result")
 
         FEATURES = [
             "temperature_c", "vibration_mms", "running_hours",
@@ -202,27 +257,51 @@ with tab1:
 
         colors = ["#E24B4A" if v > 0 else "#1D9E75" for v in shap_df["SHAP Value"]]
 
+
+        bg_color   = "#0e1117" if is_dark else "#ffffff"
+        text_color = "white"   if is_dark else "#333333"
+        spine_color = "#444"   if is_dark else "#cccccc"
+        axis_color  = "#666"   if is_dark else "#888888"
+
         fig, ax = plt.subplots(figsize=(8, 4))
-        fig.patch.set_facecolor("#0e1117")
-        ax.set_facecolor("#0e1117")
+        fig.patch.set_facecolor(bg_color)
+        ax.set_facecolor(bg_color)
+
+        ax.tick_params(colors=text_color)
+
+        # Create bars (IMPORTANT)
+        colors = ["red" if val > 0 else "green" for val in shap_df["SHAP Value"]]
         bars = ax.barh(shap_df["Feature"], shap_df["SHAP Value"], color=colors)
-        ax.axvline(x=0, color="white", linewidth=0.8, alpha=0.5)
-        ax.set_xlabel("SHAP Value  (red = pushes toward Fault, green = pushes away)",
-                      color="white", fontsize=9)
-        ax.tick_params(colors="white")
+
+        ax.set_xlabel(
+            "Impact on Machine Health ( + = Fault risk, - = Safe )",
+            color=axis_color, fontsize=9
+        )
+
+        # Clean UI
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
-        ax.spines["bottom"].set_color("#444")
-        ax.spines["left"].set_color("#444")
+        ax.spines["bottom"].set_color(spine_color)
+        ax.spines["left"].set_color(spine_color)
+
+        
+
+        # Value labels
+        offset = 0.05
         for bar, val in zip(bars, shap_df["SHAP Value"]):
             ax.text(
-                val + (0.001 if val >= 0 else -0.001),
+                val + (offset if val >= 0 else -offset),
                 bar.get_y() + bar.get_height()/2,
                 f"{val:+.3f}",
                 va="center",
                 ha="left" if val >= 0 else "right",
-                color="white", fontsize=8
+                color=text_color,
+                fontsize=8
             )
+
+        top_feature = shap_df.iloc[1]["Feature"]
+        st.info(f"🔧 Primary driver: {top_feature}")
+
         plt.tight_layout()
         st.pyplot(fig)
         plt.close()
