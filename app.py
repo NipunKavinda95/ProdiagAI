@@ -299,7 +299,7 @@ with tab1:
                 fontsize=8
             )
 
-        top_feature = shap_df.iloc[1]["Feature"]
+        top_feature = shap_df.iloc[-1]["Feature"]
         st.info(f"🔧 Primary driver: {top_feature}")
 
         plt.tight_layout()
