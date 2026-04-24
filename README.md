@@ -205,9 +205,9 @@ ProdiagAI/
 
 | Prompt Version | Latency | Quality |
 |---|---|---|
-| P01 Baseline | 8.68s | Generic, missed sensors |
-| P02 Role + Context | 3.98s | Good, partial analysis |
-| **P03 Chain of Thought** ✅ | **2.95s** | **Best — specific thresholds, all sensors, clear action** |
+| P01 Baseline | 4.58s | Generic, missed sensors |
+| **P02 Role + Context** | **3.1s** | **Good, partial analysis** |
+| P03 Chain of Thought ✅ | 3.82s | Best — specific thresholds, all sensors, clear action |
 
 **Model comparison:** GPT-4o-mini selected over GPT-3.5-turbo — better quality ($0.00020/call vs $0.00051/call) and 2.95s average latency.
 
