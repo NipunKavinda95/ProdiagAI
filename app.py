@@ -15,8 +15,6 @@ import matplotlib as mpl
 
 @st.cache_resource
 def load_shap_explainer():
-    import pickle
-    import shap
     with open("models/xgb_model.pkl", "rb") as f:
         model = pickle.load(f)
     return shap.TreeExplainer(model)
